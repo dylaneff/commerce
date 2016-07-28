@@ -26,9 +26,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "list_builder" = "Drupal\commerce_promotion\PromotionListBuilder",
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
- *       "default" = "Drupal\commerce_promotion\Form\PromotionForm",
- *       "add" = "Drupal\commerce_promotion\Form\PromotionForm",
- *       "edit" = "Drupal\commerce_promotion\Form\PromotionForm",
+ *       "add" = "Drupal\Core\Entity\ContentEntityForm",
+ *       "edit" = "Drupal\Core\Entity\ContentEntityForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm"
  *     },
  *     "route_provider" = {
@@ -266,24 +265,6 @@ class Promotion extends ContentEntityBase implements PromotionInterface {
         'weight' => 2,
       ]);
 
-    $fields['coupons'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Coupons'))
-      ->setDescription(t('Coupons which allow promotion to be redeemed.'))
-      ->setCardinality(BaseFieldDefinition::CARDINALITY_UNLIMITED)
-      ->setRequired(FALSE)
-      ->setSetting('target_type', 'commerce_promotion_coupon')
-      ->setSetting('handler', 'default')
-      ->setTranslatable(TRUE)
-      ->setDisplayOptions('form', [
-        'type' => 'inline_entity_form_complex',
-        'weight' => 3,
-        'settings' => [
-          'override_labels' => TRUE,
-          'label_singular' => 'coupon',
-          'label_plural' => 'coupons',
-        ],
-      ]);
-
     $fields['current_usage'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Current usage'))
       ->setDescription(t('The number of times the promotion was used.'))
@@ -295,7 +276,7 @@ class Promotion extends ContentEntityBase implements PromotionInterface {
       ->setDefaultValue(0)
       ->setDisplayOptions('form', [
         'type' => 'number',
-        'weight' => 4,
+        'weight' => 3,
       ]);
 
     $fields['start_date'] = BaseFieldDefinition::create('datetime')
@@ -306,17 +287,18 @@ class Promotion extends ContentEntityBase implements PromotionInterface {
       ->setDefaultValueCallback('Drupal\commerce_promotion\Entity\Promotion::getDefaultStartDate')
       ->setDisplayOptions('form', [
         'type' => 'datetime_default',
-        'weight' => 5,
+        'weight' => 4,
       ]);
 
     $fields['end_date'] = BaseFieldDefinition::create('datetime')
       ->setLabel(t('End date'))
       ->setDescription(t('The date after which the promotion is invalid.'))
-      ->setRequired(FALSE)
+      ->setRequired(TRUE)
       ->setSetting('datetime_type', 'date')
+      ->setDefaultValueCallback('Drupal\commerce_promotion\Entity\Promotion::getDefaultEndDate')
       ->setDisplayOptions('form', [
-        'type' => 'commerce_optional_date',
-        'weight' => 6,
+        'type' => 'datetime_default',
+        'weight' => 4,
       ]);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
